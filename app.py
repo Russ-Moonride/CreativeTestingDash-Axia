@@ -18,12 +18,12 @@ credentials = service_account.Credentials.from_service_account_info(
           st.secrets["gcp_service_account"]
       )
 
-Account = "Freedom Solar"
+Account = "Axia"
 client = bigquery.Client(credentials=credentials)
-bucket_name = "creativetesting_images_freedomsolar"
-main_table_id = 'freedom-solar-406415.freedom_solar_segments.freedom_ad_level'
-creativetesting_table_id = 'freedom-solar-406415.freedom_solar_streamlit.CreativeTestingStorage'
-correct_hashed_password = "FreedomSolar1234"
+bucket_name = "creativetesting_images_axia"
+main_table_id = 'axia-414123.axia_streamlit.creativetestingstorage'
+creativetesting_table_id = 'axia-414123.axia_streamlit.creativetestingstorage'
+correct_hashed_password = "Axia1234"
 
 st.set_page_config(page_title= f"{Account} Creative Ad Testing Dash",page_icon="🧑‍🚀",layout="wide")
 
