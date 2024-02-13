@@ -405,7 +405,7 @@ def main_dashboard():
         ad_name = st.text_input(f"Ad Name {i+1}", key=f"ad_name_{i}")
               
         if ad_name:  # If there's an ad name entered
-            ad_exists = data['Ad_Name__Facebook_Ads'].str.contains(ad_name).any()
+            ad_exists = data['Ad_Name'].str.contains(ad_name).any()
             ad_names.append(ad_name)  # Store ad name
             if ad_exists:
                 uploaded_file = st.file_uploader(f"Upload image for {ad_name}", key=f"uploaded_image_{i}", type=['png', 'jpg', 'jpeg'])
