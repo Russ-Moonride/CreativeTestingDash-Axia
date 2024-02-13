@@ -21,7 +21,7 @@ credentials = service_account.Credentials.from_service_account_info(
 Account = "Axia"
 client = bigquery.Client(credentials=credentials)
 bucket_name = "creativetesting_images_axia"
-main_table_id = 'axia-414123.axia_streamlit.creativetestingstorage'
+main_table_id = 'axia-414123.axia_segments.ad_level_data'
 creativetesting_table_id = 'axia-414123.axia_streamlit.creativetestingstorage'
 correct_hashed_password = "Axia1234"
 
