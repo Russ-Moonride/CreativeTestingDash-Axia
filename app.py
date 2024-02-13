@@ -403,10 +403,13 @@ def main_dashboard():
 
     for i in range(int(number_of_ads)):
         ad_name = st.text_input(f"Ad Name {i+1}", key=f"ad_name_{i}")
+              
         if ad_name:  # If there's an ad name entered
+            ad_exists = data['Ad_Name__Facebook_Ads'].str.contains(ad_name).any()
             ad_names.append(ad_name)  # Store ad name
-            uploaded_file = st.file_uploader(f"Upload image for {ad_name}", key=f"uploaded_image_{i}", type=['png', 'jpg', 'jpeg'])
-            uploaded_images[ad_name] = uploaded_file  # Associate uploaded file with ad name
+            if ad_exists:
+                uploaded_file = st.file_uploader(f"Upload image for {ad_name}", key=f"uploaded_image_{i}", type=['png', 'jpg', 'jpeg'])
+                uploaded_images[ad_name] = uploaded_file  # Associate uploaded file with ad name
             if uploaded_file is None:
                 all_filled = False  # Mark as not ready if any image is missing
         else:
