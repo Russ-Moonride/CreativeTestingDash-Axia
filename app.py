@@ -82,7 +82,7 @@ def update_ad_set_table(test_name, ad_names):
     # If current Ad-Set exists, update it to 'Past'
     if not current_ad_test.empty:
         update_query = """
-        UPDATE `{creativetesting_table_id}`
+        UPDATE `axia-414123.axia_streamlit.creativetestingstorage`
         SET Type = 'Past'
         WHERE Test_Name = @current_ad_test 
         """
@@ -95,7 +95,7 @@ def update_ad_set_table(test_name, ad_names):
 
     # Insert the new Ad-Set with Type 'Current'
     insert_query = """
-    INSERT INTO `{creativetesting_table_id}` (Test_Name, Ad_Names, Type) VALUES (@new_ad_set, @ad_names, 'Current')
+    INSERT INTO `axia-414123.axia_streamlit.creativetestingstorage` (Test_Name, Ad_Names, Type) VALUES (@new_ad_set, @ad_names, 'Current')
     """
     job_config = bigquery.QueryJobConfig(
         query_parameters=[
