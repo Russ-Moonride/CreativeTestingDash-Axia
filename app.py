@@ -457,14 +457,14 @@ def main_dashboard():
             selected_columns = ['Ad_Set', 'Ad_Name', 'Impressions', 'Clicks','Cost', 'Leads']
             
             filtered_data = data[selected_columns]
-            st.write(filtered_data)
           
             # Grouping the data by 'Ad_Set'
-            grouped_data = filtered_data.groupby(['Ad_Set', 'Ad_Name'])
+            grouped_data = filtered_data.groupby(['Ad_Name'])
             
             # Summing up the numeric columns for each group
             aggregated_data = grouped_data.sum()
-          
+            st.write(aggregated_data)
+            
             # Reset the index
             aggregated_data.reset_index(inplace=True)
           
