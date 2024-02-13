@@ -394,11 +394,39 @@ def main_dashboard():
 
 
   # Streamlit interface for selecting new ad set
-  with st.expander('Update Current Test and Upload Images'):
-      new_ad_set_name = st.text_input("Enter New Ad Set Name")
-      uploaded_images = {}
-      campaign_name = None
+  with st.expander("Update Test and Upload Images"):
+    test_name = st.text_input("Enter Test Name")
+    number_of_ads = st.number_input("How many ad names do you want to enter?", min_value=1, format='%d')
+    ad_names = []
+    uploaded_images = {}
+    all_filled = True 
 
+    for i in range(int(number_of_ads)):
+        ad_name = st.text_input(f"Ad Name {i+1}", key=f"ad_name_{i}")
+        if ad_name:  # If there's an ad name entered
+            ad_names.append(ad_name)  # Store ad name
+            uploaded_file = st.file_uploader(f"Upload image for {ad_name}", key=f"uploaded_image_{i}", type=['png', 'jpg', 'jpeg'])
+            uploaded_images[ad_name] = uploaded_file  # Associate uploaded file with ad name
+            if uploaded_file is None:
+                all_filled = False  # Mark as not ready if any image is missing
+        else:
+            all_filled = False  # Mark as not ready if any ad name is missing
+
+     # Enable the upload button only if all conditions are met
+    if all_filled and st.button("Upload Images"):
+        # Proceed with the upload logic
+        for ad_name, uploaded_file in uploaded_images.items():
+            if uploaded_file is not None:
+                # Example: Upload logic here
+                # upload_to_gcs(bucket_name, uploaded_file, f"{test_name}/{ad_name}.jpg")
+                pass
+        # Update the database with the new test name and associated ad names
+        # Example: update_test_group(test_name, list(uploaded_images.keys()), "Current")
+        st.success("Images uploaded and test updated successfully!")
+
+
+            
+            '''
       if new_ad_set_name:
           # Retrieve ad names for the new ad set
           ad_names = get_ad_names(new_ad_set_name, st.session_state.full_data)
@@ -427,7 +455,7 @@ def main_dashboard():
 
               if all_images_uploaded and st.button("Update Ad Set and Upload Images"):
                   update_ad_set_if_exists(new_ad_set_name, uploaded_images, st.session_state.full_data, bucket_name, campaign_name)
-
+'''
   if current_test_data.empty:
             st.markdown("<h4 style='text-align: center;'>No Current Tests to Display</h4>", unsafe_allow_html=True)
   else:              
