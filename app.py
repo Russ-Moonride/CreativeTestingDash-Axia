@@ -453,6 +453,8 @@ def main_dashboard():
             ad_set_data = data[data['Ad_Name'].isin(ad_names)]
             
             data = ad_set_data
+
+            st.write(data)
                     
             selected_columns = ['Ad_Set', 'Ad_Name', 'Impressions', 'Clicks','Cost', 'Leads']
             
