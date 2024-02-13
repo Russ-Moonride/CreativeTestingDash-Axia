@@ -410,8 +410,8 @@ def main_dashboard():
             if ad_exists:
                 uploaded_file = st.file_uploader(f"Upload image for {ad_name}", key=f"uploaded_image_{i}", type=['png', 'jpg', 'jpeg'])
                 uploaded_images[ad_name] = uploaded_file  # Associate uploaded file with ad name
-            if uploaded_file is None:
-                all_filled = False  # Mark as not ready if any image is missing
+                if uploaded_file is None:
+                    all_filled = False  # Mark as not ready if any image is missing
         else:
             all_filled = False  # Mark as not ready if any ad name is missing
 
