@@ -385,7 +385,7 @@ def main_dashboard():
       st.session_state.past_test_data = pandas.read_gbq(query, credentials=credentials)
 
   past_test_data = st.session_state.past_test_data
-  past_test_data['Ad_Set'] = past_test_data['Ad_Set'].apply(lambda x: x.strip("'"))
+  past_test_data['Test_Name'] = past_test_data['Test_Name'].apply(lambda x: x.strip("'"))
   past_test_data = past_test_data.iloc[::-1].reset_index(drop=True)
   
   # Renaming columns in a DataFrame
@@ -440,22 +440,22 @@ def main_dashboard():
   if current_test_data.empty:
             st.markdown("<h4 style='text-align: center;'>No Current Tests to Display</h4>", unsafe_allow_html=True)
   else:              
-            current_Ad_Set = current_test_data['Ad_Set'].iloc[0]
+            current_Ad_Set = current_test_data['Test_Name'].iloc[0]
+
+            # Get list of ad_names from ad names string 
+            ad_names = current_test_data['Ad_Names'].iloc[0]
+            ad_names = ad_names.split(',')
           
             current_Ad_Set = current_Ad_Set.strip("'")
           
-            campaign_value = get_campaign_value(current_Ad_Set, current_test_data)
-          
-            if campaign_value:
-                  # Filter data on both ad_set and campaign_value
-                  ad_set_data = data[(data['Ad_Set'] == current_Ad_Set) & (data['Campaign'] == campaign_value)]
-            else:
-                  # Filter data on just ad_set
-                  ad_set_data = data[data['Ad_Set'] == current_Ad_Set]
-                    
+            # Filter data on just ad_set
+            
+            ad_set_data = data[data['Ad_Name__Facebook_Ads'].isin(ad_names)]
+            
             data = ad_set_data
                     
             selected_columns = ['Ad_Set', 'Ad_Name', 'Impressions', 'Clicks','Cost', 'Leads']
+            
             filtered_data = data[selected_columns]
           
             # Grouping the data by 'Ad_Set'
