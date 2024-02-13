@@ -180,7 +180,7 @@ def delete_ad_set(ad_set_value_to_delete, full_data):
 
 
 ### Code for past tests function ###
-def process_ad_set_data(data, ad_set, past_test_data):
+def process_ad_set_data(data, test, past_test_data):
     # Filter data for the specific ad set
 
     data = data.rename(columns={
@@ -190,27 +190,18 @@ def process_ad_set_data(data, ad_set, past_test_data):
       'Impressions__Facebook_Ads' : 'Impressions',
       'Link_Clicks__Facebook_Ads' : 'Clicks',
       'Amount_Spent__Facebook_Ads' : 'Cost',
-      'Lead_Submit_SunPower__Facebook_Ads' : 'Leads',
+      'Leads__Facebook_Ads' : 'Leads',
       'Ad_Effective_Status__Facebook_Ads' : 'Ad_Status',
       'Ad_Preview_Shareable_Link__Facebook_Ads' : 'Ad_Link'
     })
 
-    campaign_value = get_campaign_value(ad_set, past_test_data)
-
-    if campaign_value:
-        # Filter data on both ad_set and campaign_value
-        ad_set_data = data[(data['Ad_Set'] == ad_set) & (data['Campaign'] == campaign_value)]
-    else:
-        # Filter data on just ad_set
-        ad_set_data = data[data['Ad_Set'] == ad_set]
-
-    
-    #ad_set_data = data[data['Ad_Set'] == ad_set]
+    # Filter data on just ad_set
+    ad_set_data = data[data['Ad_Name'].isin(ad_names)]
 
     # Your data processing steps
-    selected_columns = ['Ad_Set', 'Ad_Name', 'Impressions', 'Clicks', 'Cost', 'Leads']
+    selected_columns = ['Ad_Name', 'Impressions', 'Clicks', 'Cost', 'Leads']
     filtered_data = ad_set_data[selected_columns]
-    grouped_data = filtered_data.groupby(['Ad_Set', 'Ad_Name']).sum()
+    grouped_data = filtered_data.groupby(['Ad_Name']).sum()
     aggregated_data = grouped_data.reset_index()
 
     total = aggregated_data.sum(numeric_only=True)
@@ -234,7 +225,7 @@ def process_ad_set_data(data, ad_set, past_test_data):
   
     total_df = pd.DataFrame([total])
     # Reorder columns in total_df to match aggregated_data
-    total_df = total_df[['Ad_Set', 'Ad_Name', 'Impressions', 'Clicks', 'Cost', 'Leads', 'CPL', 'CPC', 'CPM', 'CTR', 'CVR']]
+    total_df = total_df[[ 'Ad_Name', 'Impressions', 'Clicks', 'Cost', 'Leads', 'CPL', 'CPC', 'CPM', 'CTR', 'CVR']]
 
     # Concatenate aggregated_data with total_df
     final_df = pd.concat([aggregated_data, total_df])
@@ -287,11 +278,7 @@ def process_ad_set_data(data, ad_set, past_test_data):
     final_df['CPM'] = final_df['CPM'].apply(lambda x: f"${x}")
 
     final_df['CTR'] = final_df['CTR'].apply(lambda x: f"{x*100:.2f}%")
-    final_df['CVR'] = final_df['CVR'].apply(lambda x: f"{x*100:.2f}%")
-
-
-    final_df = final_df[final_df['Ad_Name'] != "specimen-v13_image_paid-social-LP_PID"]
-    final_df = final_df[final_df['Ad_Name'] != "specimen-v7_image_paid-social-LP_PID"]      
+    final_df['CVR'] = final_df['CVR'].apply(lambda x: f"{x*100:.2f}%")   
           
     return final_df
 
@@ -563,18 +550,18 @@ def main_dashboard():
   if past_test_data.empty:
             st.markdown("<h4 style='text-align: center;'>No Past Tests to Display</h4>", unsafe_allow_html=True)
   else:        
-            past_tests = past_test_data['Ad_Set']
+            past_tests = past_test_data['Test_Names']
           
             # Dictionary to store DataFrames for each ad set
-            ad_set_dfs = {}
+            tests_dfs = {}
             
-            for ad_set in past_tests:
-                ad_set_dfs[ad_set] = process_ad_set_data(st.session_state.full_data, ad_set, past_test_data)
+            for test in past_tests:
+                tests_dfs[test] = process_ad_set_data(st.session_state.full_data, test, past_test_data)
           
-            for ad_set in ad_set_dfs:
-                with st.expander(f"Show Data for {ad_set}"):
-                    st.dataframe(ad_set_dfs[ad_set], width=2000)
-                    current_df = ad_set_dfs[ad_set]
+            for test in test_dfs:
+                with st.expander(f"Show Data for {test}"):
+                    st.dataframe(test_dfs[test], width=2000)
+                    current_df = test_dfs[test]
                     ad_names = current_df['Ad_Name']
                     ad_names = [item + ".jpg" for item in ad_names]
                     ad_names.pop()
