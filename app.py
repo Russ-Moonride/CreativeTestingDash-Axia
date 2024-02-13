@@ -550,14 +550,12 @@ def main_dashboard():
                     
             # Display the aggregated data
             st.dataframe(final_df, width=2000)
-            #ct_images = final_df["Ad_Name"]
-            #filtered_list = [item for item in ct_images if item is not None]
-            
+
+            #Get list of ad_names for images
             final_adnames = final_df['Ad_Name']
             final_adnames = [item + ".jpg" for item in final_adnames]
             final_adnames.pop()
 
-            st.write(final_adnames)
             display_images(final_adnames, final_adnames)        
           
   st.markdown("<h2 style='text-align: center;'>Past Tests</h2>", unsafe_allow_html=True)
