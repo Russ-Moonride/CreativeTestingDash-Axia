@@ -453,12 +453,11 @@ def main_dashboard():
             ad_set_data = data[data['Ad_Name'].isin(ad_names)]
             
             data = ad_set_data
-
-            st.write(data)
                     
             selected_columns = ['Ad_Set', 'Ad_Name', 'Impressions', 'Clicks','Cost', 'Leads']
             
             filtered_data = data[selected_columns]
+            st.write(filtered_data)
           
             # Grouping the data by 'Ad_Set'
             grouped_data = filtered_data.groupby(['Ad_Set', 'Ad_Name'])
