@@ -426,7 +426,7 @@ def main_dashboard():
 
 
             
-            '''
+'''
       if new_ad_set_name:
           # Retrieve ad names for the new ad set
           ad_names = get_ad_names(new_ad_set_name, st.session_state.full_data)
