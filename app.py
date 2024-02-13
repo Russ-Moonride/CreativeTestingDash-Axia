@@ -550,7 +550,7 @@ def main_dashboard():
   if past_test_data.empty:
             st.markdown("<h4 style='text-align: center;'>No Past Tests to Display</h4>", unsafe_allow_html=True)
   else:        
-            past_tests = past_test_data['Test_Names']
+            past_tests = past_test_data['Test_Name']
           
             # Dictionary to store DataFrames for each ad set
             tests_dfs = {}
