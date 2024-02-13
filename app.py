@@ -195,6 +195,8 @@ def process_ad_set_data(data, test, past_test_data):
       'Ad_Preview_Shareable_Link__Facebook_Ads' : 'Ad_Link'
     })
 
+    ad_names = past_test_data['Ad_Names'].iloc[0]
+
     # Filter data on just ad_set
     ad_set_data = data[data['Ad_Name'].isin(ad_names)]
 
