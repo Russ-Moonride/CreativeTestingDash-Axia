@@ -450,7 +450,7 @@ def main_dashboard():
           
             # Filter data on just ad_set
             
-            ad_set_data = data[data['Ad_Name__Facebook_Ads'].isin(ad_names)]
+            ad_set_data = data[data['Ad_Name'].isin(ad_names)]
             
             data = ad_set_data
                     
