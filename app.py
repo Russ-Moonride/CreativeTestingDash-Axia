@@ -23,7 +23,7 @@ client = bigquery.Client(credentials=credentials)
 bucket_name = "creativetesting_images_axia"
 main_table_id = 'axia-414123.axia_segments.ad_level_data'
 creativetesting_table_id = 'axia-414123.axia_streamlit.creativetestingstorage'
-correct_hashed_password = "Axia1234"
+correct_hashed_password = "CFAxiaCreativeTest0947$"
 
 st.set_page_config(page_title= f"{Account} Creative Ad Testing Dash",page_icon="🧑‍🚀",layout="wide")
 
