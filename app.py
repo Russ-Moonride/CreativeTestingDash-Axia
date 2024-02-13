@@ -54,6 +54,7 @@ def password_protection():
   else:
       main_dashboard()
 
+
 def download_blob_to_temp(bucket_name, source_blob_name, temp_folder="/tmp"):
     """Downloads a blob from the bucket to a temporary file."""
     storage_client = storage.Client(credentials=credentials)
@@ -71,41 +72,15 @@ def download_blob_to_temp(bucket_name, source_blob_name, temp_folder="/tmp"):
     return local_path
 
 
-
-def filter_ad_names_by_campaign(ad_set, campaign_name, full_data):
-
-    #Fiter to the ad_set
-    filtered_data = full_data[full_data['Ad_Set_Name__Facebook_Ads'] == ad_set] 
-          
-    # Filter the full_data DataFrame for the given campaign name   
-    filtered_data = full_data[full_data['Campaign_Name__Facebook_Ads'] == campaign_name]
-
-    # Filter ad_names based on those present in the filtered_data
-    filtered_ad_names = filtered_data["Ad_Name__Facebook_Ads"].unique()
-
-    return filtered_ad_names
-
-def get_campaign_value(ad_set, creative_storage_data):
-    # Filter the creative_storage_data for the given ad_set
-    filtered_data = creative_storage_data[creative_storage_data['Ad_Set'] == ad_set]
-
-    # Check if there is an associated campaign value
-    if not filtered_data.empty and 'Campaign' in filtered_data.columns:
-        # Return the first campaign value found
-        return filtered_data.iloc[0]['Campaign']
-    else:
-        # Return None if no campaign value is found
-        return None
-
-def update_ad_set_table(new_ad_set_name, campaign_name=None):
+def update_ad_set_table(test_name, ad_names):
     # Query to find the current Ad-Set and Campaign
     query = """
-    SELECT Ad_Set, Campaign FROM `{creativetesting_table_id}` WHERE Type = 'Current'
+    SELECT Test_Name, Campaign FROM `{creativetesting_table_id}` WHERE Type = 'Current'
     """
-    current_ad_set_campaign = pandas.read_gbq(query, credentials=credentials)
+    current_ad_test = pandas.read_gbq(query, credentials=credentials)
 
     # If current Ad-Set exists, update it to 'Past'
-    if not current_ad_set_campaign.empty:
+    if not current_ad_test.empty:
         update_query = """
         UPDATE `{creativetesting_table_id}`
         SET Type = 'Past'
@@ -113,36 +88,23 @@ def update_ad_set_table(new_ad_set_name, campaign_name=None):
         """
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
-                bigquery.ScalarQueryParameter("current_ad_set", "STRING", current_ad_set_campaign.iloc[0]['Ad_Set']),
-                bigquery.ScalarQueryParameter("current_campaign", "STRING", current_ad_set_campaign.iloc[0]['Campaign'])
+                bigquery.ScalarQueryParameter("current_ad_set", "STRING", current_ad_test.iloc[0]['Test_Name'])
             ]
         )
         client.query(update_query, job_config=job_config).result()
 
     # Insert the new Ad-Set with Type 'Current'
     insert_query = """
-    INSERT INTO `{creativetesting_table_id}` (Ad_Set, Campaign, Type) VALUES (@new_ad_set, @campaign, 'Current')
+    INSERT INTO `{creativetesting_table_id}` (Test_Name, Ad_Names, Type) VALUES (@new_ad_set, @ad_names, 'Current')
     """
     job_config = bigquery.QueryJobConfig(
         query_parameters=[
-            bigquery.ScalarQueryParameter("new_ad_set", "STRING", new_ad_set_name),
-            bigquery.ScalarQueryParameter("campaign", "STRING", campaign_name if campaign_name else '')
+            bigquery.ScalarQueryParameter("new_ad_test", "STRING", test_name),
+            bigquery.ScalarQueryParameter("ad_names", "STRING", ad_names)
         ]
     )
     client.query(insert_query, job_config=job_config).result()
     st.success(f"Upload was successful! Please refresh the page to see updates.")
-
-
-def update_ad_set_if_exists(new_ad_set_name, uploaded_images, full_data, bucket_name, campaign_name=None):
-    # The logic for retrieving and filtering ad_names is now handled in the main function
-    # So, we directly proceed with uploading files and updating the ad set table
-
-    for ad_name, uploaded_file in uploaded_images.items():
-        destination_blob_name = f"{ad_name}.jpg" 
-        upload_to_gcs(bucket_name, uploaded_file, destination_blob_name)
-    
-    update_ad_set_table(new_ad_set_name, campaign_name)  # Update the ad set table after successful uploads
-
 
 
 def upload_to_gcs(bucket_name, source_file, destination_blob_name):
@@ -156,27 +118,6 @@ def upload_to_gcs(bucket_name, source_file, destination_blob_name):
     # Create a new blob and upload the file's content.
     blob = bucket.blob(destination_blob_name)
     blob.upload_from_file(source_file, content_type='image/jpeg')  # Set content_type as per your file type
-
-
-def delete_ad_set(ad_set_value_to_delete, full_data):
-        # SQL statement for deletion
-        if ad_set_value_to_delete in full_data['Ad_Set_Name__Facebook_Ads'].values:
-                  delete_query = """
-                  DELETE FROM `{creativetesting_table_id}`
-                  WHERE Ad_Set = @ad_set_value
-                  AND Type = 'Past'
-                  """
-                  # Configure query parameters
-                  job_config = bigquery.QueryJobConfig(
-                      query_parameters=[
-                          bigquery.ScalarQueryParameter("ad_set_value", "STRING", ad_set_value_to_delete)
-                      ]
-                  )
-                  # Execute the query
-                  client.query(delete_query, job_config=job_config).result()
-                  st.experimental_rerun()
-        else:
-                  st.error("Ad_Set does not exist")
 
 
 ### Code for past tests function ###
@@ -284,36 +225,6 @@ def process_ad_set_data(data, test, past_test_data):
     final_df['CVR'] = final_df['CVR'].apply(lambda x: f"{x*100:.2f}%")   
           
     return final_df
-
-
-def update_current_tests(new_ad_set_name, uploaded_files, full_data, bucket_name):
-    ad_names = get_ad_names(new_ad_set_name, full_data)
-    
-    if len(uploaded_files) != len(ad_names):
-        st.error(f"Please upload exactly {len(ad_names)} images for the ad names in this set.")
-        return
-    
-    # Upload each file to GCS and update the ad set table
-    for i, file in enumerate(uploaded_files):
-        destination_blob_name = f"{new_ad_set_name}/{ad_names[i]}.jpg"  # Customize as needed
-        upload_to_gcs(bucket_name, file, destination_blob_name)
-    
-    update_ad_set_table(new_ad_set_name)  # Update the ad set table after successful uploads
-
-
-def get_ad_names(ad_set_name, ad_data):
-    # Retrieve all ad names from the given ad set
-    ad_names = ad_data[ad_data['Ad_Set_Name__Facebook_Ads'] == ad_set_name]['Ad_Name__Facebook_Ads'].tolist()
-    ad_names = list(set(ad_names))
-
-    # List of image paths
-    image_paths = []
-
-     # Iterate through each ad name and find corresponding images
-    for ad_name in ad_names:
-          image_name = f'{ad_name}.jpg'
-          image_paths.append(image_name)
-    return image_paths
     
 
 # Function to create columns and display images with captions
@@ -397,7 +308,7 @@ def main_dashboard():
   with st.expander("Update Test and Upload Images"):
     test_name = st.text_input("Enter Test Name")
     number_of_ads = st.number_input("How many ad names do you want to enter?", min_value=1, format='%d')
-    ad_names = []
+    new_ad_names = []
     uploaded_images = {}
     all_filled = True 
 
@@ -406,7 +317,7 @@ def main_dashboard():
               
         if ad_name:  # If there's an ad name entered
             ad_exists = data['Ad_Name'].str.contains(ad_name, regex=False).any()
-            ad_names.append(ad_name)  # Store ad name
+            new_ad_names.append(ad_name)  # Store ad name
             if ad_exists:
                 uploaded_file = st.file_uploader(f"Upload image for {ad_name}", key=f"uploaded_image_{i}", type=['png', 'jpg', 'jpeg'])
                 uploaded_images[ad_name] = uploaded_file  # Associate uploaded file with ad name
@@ -421,10 +332,11 @@ def main_dashboard():
         for ad_name, uploaded_file in uploaded_images.items():
             if uploaded_file is not None:
                 # Example: Upload logic here
-                # upload_to_gcs(bucket_name, uploaded_file, f"{test_name}/{ad_name}.jpg")
+                upload_to_gcs(bucket_name, uploaded_file, f"{ad_name}.jpg")
                 pass
         # Update the database with the new test name and associated ad names
-        # Example: update_test_group(test_name, list(uploaded_images.keys()), "Current")
+        combined_ad_names = ",".join(new_ad_names)
+        update_ad_set_table(test_name, combined_ad_names)
         st.success("Images uploaded and test updated successfully!")
 
 
