@@ -75,7 +75,7 @@ def download_blob_to_temp(bucket_name, source_blob_name, temp_folder="/tmp"):
 def update_ad_set_table(test_name, ad_names):
     # Query to find the current Ad-Set and Campaign
     query = """
-    SELECT Test_Name, Campaign FROM `axia-414123.axia_streamlit.creativetestingstorage` WHERE Type = 'Current'
+    SELECT Test_Name, Ad_Names FROM `axia-414123.axia_streamlit.creativetestingstorage` WHERE Type = 'Current'
     """
     current_ad_test = pandas.read_gbq(query, credentials=credentials)
 
@@ -84,11 +84,11 @@ def update_ad_set_table(test_name, ad_names):
         update_query = """
         UPDATE `{creativetesting_table_id}`
         SET Type = 'Past'
-        WHERE Ad_Set = @current_ad_set 
+        WHERE Test_Name = @current_ad_test 
         """
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
-                bigquery.ScalarQueryParameter("current_ad_set", "STRING", current_ad_test.iloc[0]['Test_Name'])
+                bigquery.ScalarQueryParameter("current_ad_test", "STRING", current_ad_test.iloc[0]['Test_Name'])
             ]
         )
         client.query(update_query, job_config=job_config).result()
