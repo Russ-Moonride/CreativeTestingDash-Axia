@@ -332,6 +332,7 @@ def main_dashboard():
         for ad_name, uploaded_file in uploaded_images.items():
             if uploaded_file is not None:
                 # Example: Upload logic here
+                ad_name = ad_name.replace("/", "-").replace("$","").replace(". ", " ")
                 upload_to_gcs(bucket_name, uploaded_file, f"{ad_name}.jpg")
                 pass
         # Update the database with the new test name and associated ad names
