@@ -95,7 +95,7 @@ def update_ad_set_table(test_name, ad_names):
 
     # Insert the new Ad-Set with Type 'Current'
     insert_query = """
-    INSERT INTO `axia-414123.axia_streamlit.creativetestingstorage` (Test_Name, Ad_Names, Type) VALUES (@new_ad_set, @ad_names, 'Current')
+    INSERT INTO `axia-414123.axia_streamlit.creativetestingstorage` (Test_Name, Ad_Names, Type) VALUES (@new_ad_test, @ad_names, 'Current')
     """
     job_config = bigquery.QueryJobConfig(
         query_parameters=[
