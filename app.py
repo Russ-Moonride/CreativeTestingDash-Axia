@@ -463,7 +463,6 @@ def main_dashboard():
             
             # Summing up the numeric columns for each group
             aggregated_data = grouped_data.sum()
-            st.write(aggregated_data)
             
             # Reset the index
             aggregated_data.reset_index(inplace=True)
@@ -494,7 +493,6 @@ def main_dashboard():
             # Concatenate aggregated_data with total_df
             final_df = pd.concat([aggregated_data, total_df])
           
-            
             # Initialize an empty list to store significance results
             significance_results = []
             
@@ -557,7 +555,8 @@ def main_dashboard():
             final_adnames = final_df['Ad_Name']
             final_adnames = [item + ".jpg" for item in final_adnames]
             final_adnames.pop()
-            
+
+            st.write(final_adnames)
             display_images(final_adnames, final_adnames)        
           
   st.markdown("<h2 style='text-align: center;'>Past Tests</h2>", unsafe_allow_html=True)
