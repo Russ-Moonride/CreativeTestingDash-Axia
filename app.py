@@ -556,10 +556,10 @@ def main_dashboard():
             past_tests = past_test_data['Test_Name']
           
             # Dictionary to store DataFrames for each ad set
-            tests_dfs = {}
+            test_dfs = {}
             
             for test in past_tests:
-                tests_dfs[test] = process_ad_set_data(st.session_state.full_data, test, past_test_data)
+                test_dfs[test] = process_ad_set_data(st.session_state.full_data, test, past_test_data)
           
             for test in test_dfs:
                 with st.expander(f"Show Data for {test}"):
